@@ -1,13 +1,13 @@
 import discord
+import time
+import json
 from discord import message, channel
 from discord.ext import tasks
+from requests.api import delete
 from KijijiScraperCog import KijijiScraper
-import time as time
 
 token = 'ODU0MTE2ODkzNjc2Nzk3OTUy.YMfQWA.bY_WFdtqJePNToNBemsemmYPf3Y'
 client = discord.Client()
-t = time
-time = t.localtime()
 updates = client.fetch_channel('605133898552180736')
 
 @client.event
@@ -20,16 +20,32 @@ async def Update(channel):
     await KijijiScraper(channel)
 
 async def DeleteAllMsg(channel):
+    print('Starting to delete all messages')
     messages = await channel.history(limit=100).flatten()
-    await channel.delete_messages(messages)
+    for message in messages:
+        await message.delete()
+        time.sleep(1)
+    print('Bing! Done!')
+
+async def AddNewUrl(message):
+    incoming_message = message.content.split()
+    url = incoming_message[1]
+    with open('urls.txt', 'r') as file:
+        lst = json.loads(file.read())
+        if url in lst:
+            print('URL is already in database!')
+
+        if  'https://www.kijiji.ca/' in url and url not in lst:
+            lst.append(url)
+            with open('urls.txt', 'w') as file_write:
+                file_write.write(json.dumps(lst))
+                print('URL added to database')
+        print(lst)
 
 @client.event
 async def on_message(message):
     if message.content.startswith('!update'):
         await Update(message.channel)
-    
-    if message.content.startswith('!time'):
-        print(t.localtime())
 
     if message.content.startswith('!delete_all'):
         await DeleteAllMsg(message.channel)
@@ -37,10 +53,30 @@ async def on_message(message):
     if message.content.startswith('!start'):
         await AutoUpdate.start(message.channel)
         print('Sraper Started')
+    
+    if message.content.startswith('!add_url'):
+        await AddNewUrl(message)
+
+    if message.content.startswith('!help'):
+            await message.reply('''List Of Commands
+            !start ------ Starts the auto Webscraper
+            !add_url ---- Adds new search URL (Must be a kijiji link)
+            !delete_all - Deletes All messages in the server
+            !update ----- Updates the Scraper
+            ''')
+            time.sleep(5)
+        
+        
+    
 
 @tasks.loop(hours=12)
 async def AutoUpdate(channel):
+    print('Starting Scraper!')
     await DeleteAllMsg(channel)
+    print('Finished Deleting!')
     await Update(channel)
+    print('Scraper up to date')
+
+
 
 client.run(token)
