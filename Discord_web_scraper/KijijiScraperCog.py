@@ -3,7 +3,7 @@ import requests
 import discord
 from urls import urls
 
-async def KijijiScraper(message):
+async def KijijiScraper(channel):
     for url in urls:
         myurl = url
         page = requests.get(myurl)
@@ -36,19 +36,13 @@ async def KijijiScraper(message):
     {price.text.strip()}
     {location.text.strip()}
     {datePosted.text.strip()}
-    '''
-
-            messages.append(msg)
-
-        text = ''''''
-
-        for msg in messages:
-            text += msg
-
-        text += f'''----------------
+    ''' 
+            await channel.send(msg)
+            
+        text = f'''----------------
     {listings_found} Listings Found
     ----------------'''
-        await message.reply(text)
+        await channel.send(text)
     
     #
   #      print('')
