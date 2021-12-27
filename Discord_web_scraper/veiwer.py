@@ -1,12 +1,18 @@
 import discord
 import time
 import json
+import os
+from dotenv import load_dotenv
 from discord import message, channel
 from discord.ext import tasks
 from requests.api import delete
 from KijijiScraperCog import KijijiScraper
 
-token = 'ODU0MTE2ODkzNjc2Nzk3OTUy.YMfQWA.bY_WFdtqJePNToNBemsemmYPf3Y'
+#inv --- https://discord.com/api/oauth2/authorize?client_id=924761663071207506&permissions=537127952&scope=bot
+
+load_dotenv()
+
+token = os.getenv('TOKEN')
 client = discord.Client()
 updates = client.fetch_channel('605133898552180736')
 
